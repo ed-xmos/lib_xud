@@ -150,7 +150,7 @@ static void SendSpeed(XUD_chan c[], XUD_EpType epTypeTableOut[], XUD_EpType epTy
 }
 
 // Main XUD loop
-static int XUD_Manager_loop(XUD_chan epChans0[], XUD_chan epAddr_Ready[],  chanend ?c_sof, XUD_EpType epTypeTableOut[], XUD_EpType epTypeTableIn[], int noEpOut, int noEpIn, XUD_PwrConfig pwrConfig)
+static int XUD_Manager_loop(XUD_chan epChans0[], XUD_chan epAddr_Ready[],  chanend ?c_sof, XUD_EpType epTypeTableOut[], XUD_EpType epTypeTableIn[], int noEpOut, int noEpIn, XUD_PwrConfig pwrConfig, XUD_resources_t &resources)
 {
     int reset = 1;            /* Flag for if device is returning from a reset */
 
@@ -565,7 +565,8 @@ int XUD_Main(chanend c_ep_out[], int noEpOut,
                 chanend c_ep_in[], int noEpIn,
                 chanend ?c_sof,
                 XUD_EpType epTypeTableOut[], XUD_EpType epTypeTableIn[],
-                XUD_BusSpeed_t speed, XUD_PwrConfig pwrConfig)
+                XUD_BusSpeed_t speed, XUD_PwrConfig pwrConfig,
+                XUD_resources_t &resources)
 {
     g_desSpeed = speed;
 
@@ -587,7 +588,7 @@ int XUD_Main(chanend c_ep_out[], int noEpOut,
 #endif
 
     /* Run the main XUD loop */
-    XUD_Manager_loop(epChans0, epAddr_Ready, c_sof, epTypeTableOut, epTypeTableIn, noEpOut, noEpIn, pwrConfig);
+    XUD_Manager_loop(epChans0, epAddr_Ready, c_sof, epTypeTableOut, epTypeTableIn, noEpOut, noEpIn, pwrConfig, resources);
 
     // Need to close, drain, and check - three stages.
     for(int i = 0; i < 2; i++)
@@ -608,9 +609,10 @@ int XUD_Manager(chanend c_epOut[], int noEpOut,
                 NULLABLE_RESOURCE(clock, clk),
                 unsigned rstMask,
                 XUD_BusSpeed_t desiredSpeed,
-                XUD_PwrConfig pwrConfig)
+                XUD_PwrConfig pwrConfig,
+                XUD_resources_t &resources)
 {
-    return XUD_Main(c_epOut, noEpOut, c_epIn, noEpIn, c_sof, epTypeTableOut, epTypeTableIn, desiredSpeed, pwrConfig); //NOCOVER
+    return XUD_Main(c_epOut, noEpOut, c_epIn, noEpIn, c_sof, epTypeTableOut, epTypeTableIn, desiredSpeed, pwrConfig, resources); //NOCOVER
 }
 
 

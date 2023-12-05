@@ -31,29 +31,62 @@ XUD_EpType epTypeTableOut2[EP_COUNT_OUT] = {XUD_EPTYPE_CTL | XUD_STATUS_ENABLE};
 XUD_EpType epTypeTableIn2[EP_COUNT_IN] =   {XUD_EPTYPE_CTL | XUD_STATUS_ENABLE, XUD_EPTYPE_INT, XUD_EPTYPE_ISO};
 
 
-extern int XUD_Main_wrapper(chanend c_epOut[], int noEpOut,
+int XUD_Main_wrapper(chanend c_epOut[], int noEpOut,
                 chanend c_epIn[], int noEpIn,
                 NULLABLE_RESOURCE(chanend, c_sof),
                 XUD_EpType epTypeTableOut[], XUD_EpType epTypeTableIn[],
                 XUD_BusSpeed_t desiredSpeed,
-                XUD_PwrConfig pwrConfig);
+                XUD_PwrConfig pwrConfig,
+                REFERENCE_PARAM(XUD_resources_t, resources)
+);
 
 extern void Endpoint0_wrapper(chanend chan_ep0_out, chanend chan_ep0_in);
 
 extern void VideoEndpointsHandler_wrapper(chanend c_epint_in, chanend c_episo_in);
 
 
+XUD_resources_t resources =
+{
+    XS1_PORT_1A,
+    XS1_PORT_1B,
+    XS1_PORT_1C,
+    XS1_PORT_1D,
+    XS1_PORT_1E,
+    XS1_PORT_1F,
+    XS1_PORT_1G,
+    XS1_PORT_1H,
+    XS1_PORT_1I,
+    XS1_CLKBLK_1,
+    XS1_CLKBLK_2,
+};
+
+XUD_resources_t resources2 =
+{
+    XS1_PORT_1A,
+    XS1_PORT_1B,
+    XS1_PORT_1C,
+    XS1_PORT_1D,
+    XS1_PORT_1E,
+    XS1_PORT_1F,
+    XS1_PORT_1G,
+    XS1_PORT_1H,
+    XS1_PORT_1I,
+    XS1_CLKBLK_1,
+    XS1_CLKBLK_2,
+};
+
 int main() {
 
     chan c_ep_out[EP_COUNT_OUT], c_ep_in[EP_COUNT_IN];
     chan c_ep_out2[EP_COUNT_OUT], c_ep_in2[EP_COUNT_IN];
+
 
     /* 'Par' statement to run the following tasks in parallel */
     par
     {
         on USB_TILE: XUD_Main(c_ep_out, EP_COUNT_OUT, c_ep_in, EP_COUNT_IN,
                       null, epTypeTableOut, epTypeTableIn,
-                      XUD_SPEED_HS, XUD_PWR_BUS);
+                      XUD_SPEED_HS, XUD_PWR_BUS, resources);
 
         on USB_TILE: Endpoint0(c_ep_out[0], c_ep_in[0]);
 
@@ -64,7 +97,7 @@ int main() {
 
         on USB_TILE: XUD_Main_wrapper(c_ep_out2, EP_COUNT_OUT, c_ep_in2, EP_COUNT_IN,
                       null, epTypeTableOut2, epTypeTableIn2,
-                      XUD_SPEED_HS, XUD_PWR_BUS);
+                      XUD_SPEED_HS, XUD_PWR_BUS, resources2);
 
         on USB_TILE: Endpoint0_wrapper(c_ep_out2[0], c_ep_in2[0]);
 

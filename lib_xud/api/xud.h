@@ -120,6 +120,38 @@ typedef enum XUD_Result
     XUD_RES_ERR =  2,
 } XUD_Result_t;
 
+#ifdef __XC__
+typedef struct XUD_resources
+{
+    in port flag0_port;
+    in port flag1_port;
+    in port flag2_port;
+    in buffered port:32 p_usb_clk;
+    out buffered port:32 p_usb_txd;
+    in  buffered port:32 p_usb_rxd ;
+    out port tx_readyout;
+    in port tx_readyin;
+    in port rx_rdy;
+    clock tx_usb_clk;
+    clock rx_usb_clk;
+} XUD_resources_t;
+#else
+typedef struct XUD_resources
+{
+    int flag0_port;
+    int flag1_port;
+    int flag2_port;
+    int p_usb_clk;
+    int p_usb_txd;
+    int p_usb_rxd ;
+    int tx_readyout;
+    int tx_readyin;
+    int rx_rdy;
+    int tx_usb_clk;
+    int rx_usb_clk;
+} XUD_resources_t;
+#endif
+
 /** This performs the low-level USB I/O operations. Note that this
  *  needs to run in a thread with at least 80 MIPS worst case execution
  *  speed.
@@ -164,7 +196,8 @@ int XUD_Main(/*tileref * unsafe usbtileXUD_res_t &xudres, */
                 NULLABLE_RESOURCE(chanend, c_sof),
                 XUD_EpType epTypeTableOut[], XUD_EpType epTypeTableIn[],
                 XUD_BusSpeed_t desiredSpeed,
-                XUD_PwrConfig pwrConfig);
+                XUD_PwrConfig pwrConfig,
+                REFERENCE_PARAM(XUD_resources_t, resources));
 
 /* Legacy API support */
 int XUD_Manager(chanend c_epOut[], int noEpOut,
@@ -175,7 +208,8 @@ int XUD_Manager(chanend c_epOut[], int noEpOut,
                 NULLABLE_RESOURCE(xcore_clock_t, clk),
                 unsigned rstMask,
                 XUD_BusSpeed_t desiredSpeed,
-                XUD_PwrConfig pwrConfig);
+                XUD_PwrConfig pwrConfig,
+                REFERENCE_PARAM(XUD_resources_t, resources));
 
 /**
  * \brief   This function must be called by a thread that deals with an OUT endpoint.
