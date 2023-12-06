@@ -8,6 +8,7 @@
 #include <xccompat.h>
 
 #include "usb_video.h"
+#include "xud.h"
 
 /* xSCOPE Setup Function */
 #if (USE_XSCOPE == 1)
@@ -31,14 +32,16 @@ XUD_EpType epTypeTableOut2[EP_COUNT_OUT] = {XUD_EPTYPE_CTL | XUD_STATUS_ENABLE};
 XUD_EpType epTypeTableIn2[EP_COUNT_IN] =   {XUD_EPTYPE_CTL | XUD_STATUS_ENABLE, XUD_EPTYPE_INT, XUD_EPTYPE_ISO};
 
 
+extern "C" {
 int XUD_Main_wrapper(chanend c_epOut[], int noEpOut,
                 chanend c_epIn[], int noEpIn,
                 NULLABLE_RESOURCE(chanend, c_sof),
                 XUD_EpType epTypeTableOut[], XUD_EpType epTypeTableIn[],
                 XUD_BusSpeed_t desiredSpeed,
                 XUD_PwrConfig pwrConfig,
-                REFERENCE_PARAM(XUD_resources_t, resources)
+                XUD_resources_t *resources
 );
+}
 
 extern void Endpoint0_wrapper(chanend chan_ep0_out, chanend chan_ep0_in);
 
@@ -47,32 +50,32 @@ extern void VideoEndpointsHandler_wrapper(chanend c_epint_in, chanend c_episo_in
 
 XUD_resources_t resources =
 {
-    XS1_PORT_1A,
-    XS1_PORT_1B,
-    XS1_PORT_1C,
-    XS1_PORT_1D,
-    XS1_PORT_1E,
-    XS1_PORT_1F,
-    XS1_PORT_1G,
-    XS1_PORT_1H,
-    XS1_PORT_1I,
-    XS1_CLKBLK_1,
-    XS1_CLKBLK_2,
+    on tile[0]: XS1_PORT_1A,
+    on tile[0]: XS1_PORT_1B,
+    on tile[0]: XS1_PORT_1C,
+    on tile[0]: XS1_PORT_1D,
+    on tile[0]: XS1_PORT_1E,
+    on tile[0]: XS1_PORT_1F,
+    on tile[0]: XS1_PORT_1G,
+    on tile[0]: XS1_PORT_1H,
+    on tile[0]: XS1_PORT_1I,
+    on tile[0]: XS1_CLKBLK_1,
+    on tile[0]: XS1_CLKBLK_2,
 };
 
 XUD_resources_t resources2 =
 {
-    XS1_PORT_1A,
-    XS1_PORT_1B,
-    XS1_PORT_1C,
-    XS1_PORT_1D,
-    XS1_PORT_1E,
-    XS1_PORT_1F,
-    XS1_PORT_1G,
-    XS1_PORT_1H,
-    XS1_PORT_1I,
-    XS1_CLKBLK_1,
-    XS1_CLKBLK_2,
+    on tile[2]: XS1_PORT_1A,
+    on tile[2]: XS1_PORT_1B,
+    on tile[2]: XS1_PORT_1C,
+    on tile[2]: XS1_PORT_1D,
+    on tile[2]: XS1_PORT_1E,
+    on tile[2]: XS1_PORT_1F,
+    on tile[2]: XS1_PORT_1G,
+    on tile[2]: XS1_PORT_1H,
+    on tile[2]: XS1_PORT_1I,
+    on tile[2]: XS1_CLKBLK_1,
+    on tile[2]: XS1_CLKBLK_2,
 };
 
 int main() {
@@ -97,7 +100,7 @@ int main() {
 
         on USB_TILE: XUD_Main_wrapper(c_ep_out2, EP_COUNT_OUT, c_ep_in2, EP_COUNT_IN,
                       null, epTypeTableOut2, epTypeTableIn2,
-                      XUD_SPEED_HS, XUD_PWR_BUS, resources2);
+                      XUD_SPEED_HS, XUD_PWR_BUS, &resources2);
 
         on USB_TILE: Endpoint0_wrapper(c_ep_out2[0], c_ep_in2[0]);
 

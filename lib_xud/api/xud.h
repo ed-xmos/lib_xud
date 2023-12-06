@@ -121,7 +121,7 @@ typedef enum XUD_Result
 } XUD_Result_t;
 
 #ifdef __XC__
-typedef struct XUD_resources
+typedef struct XUD_resources_t
 {
     in port flag0_port;
     in port flag1_port;
@@ -136,19 +136,19 @@ typedef struct XUD_resources
     clock rx_usb_clk;
 } XUD_resources_t;
 #else
-typedef struct XUD_resources
+typedef struct XUD_resources_t
 {
-    int flag0_port;
-    int flag1_port;
-    int flag2_port;
-    int p_usb_clk;
-    int p_usb_txd;
-    int p_usb_rxd ;
-    int tx_readyout;
-    int tx_readyin;
-    int rx_rdy;
-    int tx_usb_clk;
-    int rx_usb_clk;
+    unsigned int flag0_port;
+    unsigned int flag1_port;
+    unsigned int flag2_port;
+    unsigned int p_usb_clk;
+    unsigned int p_usb_txd;
+    unsigned int p_usb_rxd ;
+    unsigned int tx_readyout;
+    unsigned int tx_readyin;
+    unsigned int rx_rdy;
+    unsigned int tx_usb_clk;
+    unsigned int rx_usb_clk;
 } XUD_resources_t;
 #endif
 
