@@ -39,25 +39,25 @@ unsigned g_curSpeed;
 unsigned g_desSpeed;
 unsigned g_txHandshakeTimeout;
 
-in port flag0_port = PORT_USB_FLAG0; /* For XS3: Mission: RXE, XS2 is configurable and set to RXE in mission mode */
-in port flag1_port = PORT_USB_FLAG1; /* For XS3: Mission: RXA, XS2 is configuratble and set to RXA in mission mode*/
+extern in port flag0_port; /* For XS3: Mission: RXE, XS2 is configurable and set to RXE in mission mode */
+extern in port flag1_port; /* For XS3: Mission: RXA, XS2 is configuratble and set to RXA in mission mode*/
 
 /* XS2A has an additonal flag port. In Mission mode this is set to VALID_TOKEN */
 #ifdef __XS2A__
-in port flag2_port = PORT_USB_FLAG2;
+extern in port flag2_port;
 #else
 #define flag2_port null
 #endif
 
-in buffered port:32 p_usb_clk  = PORT_USB_CLK;
-out buffered port:32 p_usb_txd = PORT_USB_TXD;
-in  buffered port:32 p_usb_rxd = PORT_USB_RXD;
-out port tx_readyout           = PORT_USB_TX_READYOUT;
-in port tx_readyin             = PORT_USB_TX_READYIN;
-in port rx_rdy                 = PORT_USB_RX_READY;
+extern in buffered port:32 p_usb_clk;
+extern out buffered port:32 p_usb_txd;
+extern in  buffered port:32 p_usb_rxd;
+extern out port tx_readyout;
+extern in port tx_readyin;
+extern in port rx_rdy;
 
-on USB_TILE: clock tx_usb_clk  = XS1_CLKBLK_4;
-on USB_TILE: clock rx_usb_clk  = XS1_CLKBLK_5;
+extern clock tx_usb_clk;
+extern clock rx_usb_clk;
 
 // We use a single array instrad of two here and append epAddr_Ready_setup on the end to save some instructions in the Setup
 // token handling code. i.e. what we really want is the following, but's less efficient.

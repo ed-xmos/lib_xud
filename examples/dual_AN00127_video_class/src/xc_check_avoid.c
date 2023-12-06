@@ -25,12 +25,23 @@ int XUD_Main(   chanend c_epOut[], int noEpOut,
 void VideoEndpointsHandler(chanend c_epint_in, chanend c_episo_in);
 void Endpoint0(chanend chan_ep0_out, chanend chan_ep0_in);
 
+extern port p_usb_clk2;
+extern port p_usb_clk;
+
+void test_print(void){
+    printf("tile[0] p_usb_clk: %x\n", p_usb_clk);
+    printf("tile[0] p_usb_clk2: %x\n", p_usb_clk2);
+}
+
 int XUD_Main_wrapper(chanend c_epOut[], int noEpOut,
                 chanend c_epIn[], int noEpIn,
                 NULLABLE_RESOURCE(chanend, c_sof),
                 XUD_EpType epTypeTableOut[], XUD_EpType epTypeTableIn[],
                 XUD_BusSpeed_t desiredSpeed,
                 XUD_PwrConfig pwrConfig){
+
+    printf("tile[2] p_usb_clk: %x\n", p_usb_clk);
+    printf("tile[2] p_usb_clk2: %x\n", p_usb_clk2);
 
     return XUD_Main(c_epOut, noEpOut, c_epIn, noEpOut,
                           c_sof, epTypeTableOut, epTypeTableIn,
