@@ -22,19 +22,19 @@
 
 extern unsigned g_curSpeed;
 
-int XUD_Init()
+int XUD_Init(XUD_resources_t &resources)
 {
    /* Wait for host */
     while (1)
     {
-        XUD_LineState_t currentLs = XUD_HAL_GetLineState();
+        XUD_LineState_t currentLs = XUD_HAL_GetLineState(resources);
 
         switch (currentLs)
         {
             /* SE0 State */
            case XUD_LINESTATE_SE0:
 
-                unsigned timedOut = XUD_HAL_WaitForLineStateChange(currentLs, T_WTRSTFS);
+                unsigned timedOut = XUD_HAL_WaitForLineStateChange(currentLs, T_WTRSTFS, resources);
 
                 /* If no change in LS then return 1 for reset */
                 if(timedOut)
@@ -46,7 +46,7 @@ int XUD_Init()
             /* J State */
             case XUD_LINESTATE_HS_K_FS_J:
 
-                unsigned timedOut = XUD_HAL_WaitForLineStateChange(currentLs, STATE_START_TO);
+                unsigned timedOut = XUD_HAL_WaitForLineStateChange(currentLs, STATE_START_TO, resources);
 
                 /* If no change in LS then return 0 for suspend */
                 if(timedOut)
@@ -68,7 +68,7 @@ int XUD_Init()
 /** XUD_Suspend
   * @brief  Function called when device is suspended. This should include any clock down code etc.
   * @return non-zero if reset detected during resume */
-int XUD_Suspend(XUD_PwrConfig pwrConfig)
+int XUD_Suspend(XUD_PwrConfig pwrConfig, XUD_resources_t &resources)
 {
     timer t;
     unsigned time;
@@ -82,7 +82,7 @@ int XUD_Suspend(XUD_PwrConfig pwrConfig)
         if(pwrConfig == XUD_PWR_SELF)
             timeOutTime = SUSPEND_VBUS_POLL_TIMER_TICKS;
 
-        unsigned timedOut = XUD_HAL_WaitForLineStateChange(currentLs, timeOutTime);
+        unsigned timedOut = XUD_HAL_WaitForLineStateChange(currentLs, timeOutTime, resources);
 
         if(timedOut)
         {
@@ -104,7 +104,7 @@ int XUD_Suspend(XUD_PwrConfig pwrConfig)
             /* Reset signalliung */
             case XUD_LINESTATE_SE0:
 
-                timedOut = XUD_HAL_WaitForLineStateChange(currentLs, T_FILTSE0);
+                timedOut = XUD_HAL_WaitForLineStateChange(currentLs, T_FILTSE0, resources);
 
                 if(timedOut)
                 {
@@ -131,7 +131,7 @@ int XUD_Suspend(XUD_PwrConfig pwrConfig)
 #endif
                 while(1)
                 {
-                    XUD_HAL_WaitForLineStateChange(currentLs, 0);
+                    XUD_HAL_WaitForLineStateChange(currentLs, 0, resources);
 
                     switch(currentLs)
                     {

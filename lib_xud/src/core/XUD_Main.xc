@@ -39,25 +39,13 @@ unsigned g_curSpeed;
 unsigned g_desSpeed;
 unsigned g_txHandshakeTimeout;
 
-in port flag0_port = PORT_USB_FLAG0; /* For XS3: Mission: RXE, XS2 is configurable and set to RXE in mission mode */
-in port flag1_port = PORT_USB_FLAG1; /* For XS3: Mission: RXA, XS2 is configuratble and set to RXA in mission mode*/
+// /* XS2A has an additonal flag port. In Mission mode this is set to VALID_TOKEN */
+// #ifdef __XS2A__
+// in port flag2_port = PORT_USB_FLAG2;
+// #else
+// #define flag2_port null
+// #endif
 
-/* XS2A has an additonal flag port. In Mission mode this is set to VALID_TOKEN */
-#ifdef __XS2A__
-in port flag2_port = PORT_USB_FLAG2;
-#else
-#define flag2_port null
-#endif
-
-in buffered port:32 p_usb_clk  = PORT_USB_CLK;
-out buffered port:32 p_usb_txd = PORT_USB_TXD;
-in  buffered port:32 p_usb_rxd = PORT_USB_RXD;
-out port tx_readyout           = PORT_USB_TX_READYOUT;
-in port tx_readyin             = PORT_USB_TX_READYIN;
-in port rx_rdy                 = PORT_USB_RX_READY;
-
-on USB_TILE: clock tx_usb_clk  = XS1_CLKBLK_4;
-on USB_TILE: clock rx_usb_clk  = XS1_CLKBLK_5;
 
 // We use a single array instrad of two here and append epAddr_Ready_setup on the end to save some instructions in the Setup
 // token handling code. i.e. what we really want is the following, but's less efficient.
@@ -155,11 +143,11 @@ static int XUD_Manager_loop(XUD_chan epChans0[], XUD_chan epAddr_Ready[],  chane
     int reset = 1;            /* Flag for if device is returning from a reset */
 
     /* Make sure ports are on and reset port states */
-    set_port_use_on(p_usb_clk);
-    set_port_use_on(p_usb_txd);
-    set_port_use_on(p_usb_rxd);
-    set_port_use_on(flag0_port);
-    set_port_use_on(flag1_port);
+    set_port_use_on(resources.p_usb_clk);
+    set_port_use_on(resources.p_usb_txd);
+    set_port_use_on(resources.p_usb_rxd);
+    set_port_use_on(resources.flag0_port);
+    set_port_use_on(resources.flag1_port);
 #if defined(__XS2A__)
     /* Extra flag port in XS2 */
     set_port_use_on(flag2_port);
@@ -208,35 +196,35 @@ static int XUD_Manager_loop(XUD_chan epChans0[], XUD_chan epAddr_Ready[],  chane
 #endif
 
     // Handshaken ports need USB clock
-    configure_clock_src(tx_usb_clk, p_usb_clk);
-    configure_clock_src(rx_usb_clk, p_usb_clk);
+    configure_clock_src(resources.tx_usb_clk, resources.p_usb_clk);
+    configure_clock_src(resources.rx_usb_clk, resources.p_usb_clk);
 
     // This, along with the following delays,  forces the clock
     // to the ports to be effectively controlled by the
     // previous usb clock edges
-    set_port_inv(p_usb_clk);
-    set_port_sample_delay(p_usb_clk);
+    set_port_inv(resources.p_usb_clk);
+    set_port_sample_delay(resources.p_usb_clk);
 
     // This delay controls the capture of rdy
-    set_clock_rise_delay(tx_usb_clk, TX_RISE_DELAY);
+    set_clock_rise_delay(resources.tx_usb_clk, TX_RISE_DELAY);
 
     // This delay controls the launch of data.
-    set_clock_fall_delay(tx_usb_clk, TX_FALL_DELAY);
+    set_clock_fall_delay(resources.tx_usb_clk, TX_FALL_DELAY);
 
     // This delay the capture of the rdyIn and data.
-    set_clock_rise_delay(rx_usb_clk, RX_RISE_DELAY);
-    set_clock_fall_delay(rx_usb_clk, RX_FALL_DELAY);
+    set_clock_rise_delay(resources.rx_usb_clk, RX_RISE_DELAY);
+    set_clock_fall_delay(resources.rx_usb_clk, RX_FALL_DELAY);
 
-    set_pad_delay(flag1_port, 2);
+    set_pad_delay(resources.flag1_port, 2);
 
-    start_clock(tx_usb_clk);
-    start_clock(rx_usb_clk);
+    start_clock(resources.tx_usb_clk);
+    start_clock(resources.rx_usb_clk);
 
- 	configure_out_port_handshake(p_usb_txd, tx_readyin, tx_readyout, tx_usb_clk, 0);
-  	configure_in_port_strobed_slave(p_usb_rxd, rx_rdy, rx_usb_clk);
+ 	configure_out_port_handshake(resources.p_usb_txd, resources.tx_readyin, resources.tx_readyout, resources.tx_usb_clk, 0);
+  	configure_in_port_strobed_slave(resources.p_usb_rxd, resources.rx_rdy, resources.rx_usb_clk);
 
     /* Clock RxA port from USB clock - helps fall event */
-    configure_in_port(flag1_port, rx_usb_clk);
+    configure_in_port(resources.flag1_port, resources.rx_usb_clk);
 
     unsigned noExit = 1;
 
@@ -245,7 +233,7 @@ static int XUD_Manager_loop(XUD_chan epChans0[], XUD_chan epAddr_Ready[],  chane
         unsigned settings[] = {0};
 
         /* Enable USB funcitonality in the device */
-        XUD_HAL_EnableUsb(pwrConfig);
+        XUD_HAL_EnableUsb(pwrConfig, resources);
 
         while(1)
         {
@@ -273,14 +261,14 @@ static int XUD_Manager_loop(XUD_chan epChans0[], XUD_chan epAddr_Ready[],  chane
                 XUD_HAL_EnterMode_PeripheralFullSpeed();
 
                 /* Setup flags for power signalling - i.e. J/K/SE0 line state*/
-                XUD_HAL_Mode_Signalling();
+                XUD_HAL_Mode_Signalling(resources);
 
                 if (one)
                 {
 #if defined(XUD_BYPASS_CONNECT)
                     reset = 1;
 #else
-                    reset = XUD_Init();
+                    reset = XUD_Init(resources);
 #endif
                     one = 0;
                 }
@@ -291,7 +279,7 @@ static int XUD_Manager_loop(XUD_chan epChans0[], XUD_chan epAddr_Ready[],  chane
                     t when timerafter(time + SUSPEND_T_WTWRSTHS_ticks) :> int _;// T_WTRSTHS: 100-875us
 
                     /* Sample line state and check for reset (or suspend) */
-                    XUD_LineState_t ls = XUD_HAL_GetLineState();
+                    XUD_LineState_t ls = XUD_HAL_GetLineState(resources);
                     if(ls == XUD_LINESTATE_SE0)
                         reset = 1;
                     else
@@ -304,7 +292,7 @@ static int XUD_Manager_loop(XUD_chan epChans0[], XUD_chan epAddr_Ready[],  chane
                     XUD_UserSuspend();
 
                     /* Run suspend code, returns 1 if reset from suspend, 0 for resume, -1 for invalid vbus */
-                    reset = XUD_Suspend(pwrConfig);
+                    reset = XUD_Suspend(pwrConfig, resources);
 
                     if((pwrConfig == XUD_PWR_SELF) && (reset==-1))
                     {
@@ -360,7 +348,7 @@ static int XUD_Manager_loop(XUD_chan epChans0[], XUD_chan epAddr_Ready[],  chane
                     if(g_desSpeed == XUD_SPEED_HS)
                     {
                         unsigned tmp = 0;
-                        tmp = XUD_DeviceAttachHS(pwrConfig);
+                        tmp = XUD_DeviceAttachHS(pwrConfig, resources);
 
                         if(tmp == -1)
                         {
@@ -392,7 +380,7 @@ static int XUD_Manager_loop(XUD_chan epChans0[], XUD_chan epAddr_Ready[],  chane
                 }
             }
 
-            XUD_HAL_Mode_DataTransfer();
+            XUD_HAL_Mode_DataTransfer(resources);
 
             set_thread_fast_mode_on();
 
@@ -400,7 +388,7 @@ static int XUD_Manager_loop(XUD_chan epChans0[], XUD_chan epAddr_Ready[],  chane
             /* flag0: Rx Error
                flag1: Rx Active
                flag2: Null / Valid Token  */
-            noExit = XUD_LLD_IoLoop(p_usb_rxd, flag1_port, p_usb_txd, flag0_port, flag2_port, epTypeTableOut, epTypeTableIn, epAddr_Ready, noEpOut, c_sof);
+            noExit = XUD_LLD_IoLoop(resources.p_usb_rxd, resources.flag1_port, resources.p_usb_txd, resources.flag0_port, resources.flag2_port, epTypeTableOut, epTypeTableIn, epAddr_Ready, noEpOut, c_sof);
 
             set_thread_fast_mode_off();
 
@@ -412,14 +400,14 @@ static int XUD_Manager_loop(XUD_chan epChans0[], XUD_chan epAddr_Ready[],  chane
     /* TODO stop clock blocks */
 
     /* Turn ports off */
-    set_port_use_off(p_usb_txd);
-    set_port_use_off(p_usb_rxd);
-    set_port_use_off(flag0_port);
-    set_port_use_off(flag1_port);
+    set_port_use_off(resources.p_usb_txd);
+    set_port_use_off(resources.p_usb_rxd);
+    set_port_use_off(resources.flag0_port);
+    set_port_use_off(resources.flag1_port);
 #ifdef __XS2A__
-    set_port_use_off(flag2_port);
+    set_port_use_off(resources.flag2_port);
 #endif
-    set_port_use_off(p_usb_clk);
+    set_port_use_off(resources.p_usb_clk);
     return 0;
 }
 

@@ -49,14 +49,14 @@ void XUD_HAL_EnterMode_TristateDrivers();
  * \brief   Get current linestate status
  * \return  XUD_LineState_t representing current line status
 **/
-XUD_LineState_t XUD_HAL_GetLineState();
+XUD_LineState_t XUD_HAL_GetLineState(XUD_resources_t &resources);
 
 /**
  * \brief   Wait for a change in linestate and return, or timeout
  * \param   Reference to current linestate (updated with new linestate
  * \return  1 for timed out, otherwise 0
 **/
-unsigned XUD_HAL_WaitForLineStateChange(REFERENCE_PARAM(XUD_LineState_t, currentLs), unsigned timeout);
+unsigned XUD_HAL_WaitForLineStateChange(REFERENCE_PARAM(XUD_LineState_t, currentLs), unsigned timeout, XUD_resources_t &resources);
 
 /**
  *  \brief   HAL function to set xCORE into signalling mode
@@ -64,7 +64,7 @@ unsigned XUD_HAL_WaitForLineStateChange(REFERENCE_PARAM(XUD_LineState_t, current
  *
  * TODO     Should this be combined with EnterMode_PeripheralChirp()?
  **/
-void XUD_HAL_Mode_Signalling();
+void XUD_HAL_Mode_Signalling(XUD_resources_t &resources);
 
 /**
  *  \brief   HAL function to set xCORE into data transfer mode
@@ -72,7 +72,7 @@ void XUD_HAL_Mode_Signalling();
  *
  * TODO     Should this be combined with EnterMode_PeripheralHigh/FullSpeed()?
  **/
-void XUD_HAL_Mode_DataTransfer();
+void XUD_HAL_Mode_DataTransfer(XUD_resources_t &resources);
 
 /**
  * \brief   HAL function to set xCORE to correct USB device address
@@ -84,7 +84,7 @@ void XUD_HAL_SetDeviceAddress(unsigned char address);
 /**
  * \brief   Enable USB funtionality in the device
  **/
-void XUD_HAL_EnableUsb(unsigned pwrConfig);
+void XUD_HAL_EnableUsb(unsigned pwrConfig, XUD_resources_t &resources);
 
 /**
  * \brief  HAL funtion to get state of VBUS line, if any

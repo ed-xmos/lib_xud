@@ -29,7 +29,7 @@ extern int resetCount;
  * - No flags sticky
  * - Flag 0 port inverted
  */
-int XUD_DeviceAttachHS(XUD_PwrConfig pwrConfig)
+int XUD_DeviceAttachHS(XUD_PwrConfig pwrConfig, XUD_resources_t &resources)
 {
    unsigned tmp;
    timer t;
@@ -38,7 +38,7 @@ int XUD_DeviceAttachHS(XUD_PwrConfig pwrConfig)
    int tx;
    unsigned int chirpCount = 0;
 
-   clearbuf(p_usb_txd);
+   clearbuf(resources.p_usb_txd);
 
    /* On detecting the SE0 move into chirp mode */
    XUD_HAL_EnterMode_PeripheralChirp();
@@ -50,14 +50,14 @@ int XUD_DeviceAttachHS(XUD_PwrConfig pwrConfig)
    for (int i = 0; i < 16000; i++)    // 16000 words @ 480 MBit = 1.066 ms
 #endif
     {
-        p_usb_txd <: 0;
+        resources.p_usb_txd <: 0;
     }
 
    // J, K, SE0 on flag ports 0, 1, 2 respectively (on XS2)
    // XS3 has raw linestate on flag port 0 and 1
    // Wait for fs chirp k (i.e. HS chirp j)
 #if defined(__XS2A__)
-    flag1_port when pinseq(0) :> tmp; // Wait for out k to go
+    resources.flag1_port when pinseq(0) :> tmp; // Wait for out k to go
 #endif
 
     t :> start_time;
@@ -76,8 +76,8 @@ int XUD_DeviceAttachHS(XUD_PwrConfig pwrConfig)
                     /* TODO Use a timer to save some juice...*/
 #if !defined(__XS2A__)
                     unsigned dp, dm;
-                    flag0_port :> dm;
-                    flag1_port :> dp;
+                    resources.flag0_port :> dm;
+                    resources.flag1_port :> dp;
 
                     if(dp || dm)
                     {
@@ -85,7 +85,7 @@ int XUD_DeviceAttachHS(XUD_PwrConfig pwrConfig)
                         return 0;
                     }
 #else
-                    flag2_port :> tmp;
+                    resources.flag2_port :> tmp;
 
                     if(!tmp)
                     {
@@ -106,11 +106,11 @@ int XUD_DeviceAttachHS(XUD_PwrConfig pwrConfig)
 
 #if !defined(__XS2A__)
 // Note, J and K definitions are reversed in XS3A
-#define j_port flag1_port
-#define k_port flag0_port
+#define j_port resources.flag1_port
+#define k_port resources.flag0_port
 #else
-#define k_port flag1_port
-#define j_port flag0_port
+#define k_port resources.flag1_port
+#define j_port resources.flag0_port
 #endif
             case detecting_k => k_port when pinseq(1):> void @ tx:       // K Chirp
                 k_port @ tx + T_FILT_ticks :> tmp;
@@ -135,7 +135,7 @@ int XUD_DeviceAttachHS(XUD_PwrConfig pwrConfig)
                         // Wait for SE0 (TODO consume other chirps?)
 #if !defined(__XS2A__)
                         // TODO ideally dont use a polling loop here
-                        while (XUD_HAL_GetLineState() != XUD_LINESTATE_SE0);
+                        while (XUD_HAL_GetLineState(resources) != XUD_LINESTATE_SE0);
 #else
                         flag2_port when pinseq(1) :> tmp;
 #endif

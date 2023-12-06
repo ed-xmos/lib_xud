@@ -5,7 +5,7 @@
 #define _XUD_PWRSIG_H_
 void XUD_PhyReset(out port p_rst, int resetTime, unsigned rstMask);
 
-int XUD_Init();
+int XUD_Init(XUD_resources_t &resources);
 
-int XUD_Suspend(XUD_PwrConfig pwrConfig);
+int XUD_Suspend(XUD_PwrConfig pwrConfig, XUD_resources_t &resources);
 #endif
