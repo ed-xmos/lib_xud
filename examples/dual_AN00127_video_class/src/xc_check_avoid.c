@@ -16,7 +16,7 @@ int XUD_Main_wrapper(chanend c_epOut[], int noEpOut,
                 XUD_resources_t *resources
 ){
 
-    return XUD_Main_wrapper2(c_epOut, noEpOut, c_epIn, noEpOut,
+    return XUD_Main(c_epOut, noEpOut, c_epIn, noEpOut,
                           c_sof, epTypeTableOut, epTypeTableIn,
                           desiredSpeed, pwrConfig, resources);
 }

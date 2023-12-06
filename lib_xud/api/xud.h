@@ -120,37 +120,21 @@ typedef enum XUD_Result
     XUD_RES_ERR =  2,
 } XUD_Result_t;
 
-#ifdef __XC__
 typedef struct XUD_resources_t
 {
-    in port flag0_port;
-    in port flag1_port;
-    in port flag2_port;
-    in buffered port:32 p_usb_clk;
-    out buffered port:32 p_usb_txd;
-    in  buffered port:32 p_usb_rxd ;
-    out port tx_readyout;
-    in port tx_readyin;
-    in port rx_rdy;
-    clock tx_usb_clk;
-    clock rx_usb_clk;
+    port flag0_port;
+    port flag1_port;
+    port flag2_port;
+    in_buffered_port_32_t p_usb_clk;
+    out_buffered_port_32_t p_usb_txd;
+    in_buffered_port_32_t p_usb_rxd ;
+    port tx_readyout;
+    port tx_readyin;
+    port rx_rdy;
+    xcore_clock_t tx_usb_clk;
+    xcore_clock_t rx_usb_clk;
 } XUD_resources_t;
-#else
-typedef struct XUD_resources_t
-{
-    unsigned int flag0_port;
-    unsigned int flag1_port;
-    unsigned int flag2_port;
-    unsigned int p_usb_clk;
-    unsigned int p_usb_txd;
-    unsigned int p_usb_rxd ;
-    unsigned int tx_readyout;
-    unsigned int tx_readyin;
-    unsigned int rx_rdy;
-    unsigned int tx_usb_clk;
-    unsigned int rx_usb_clk;
-} XUD_resources_t;
-#endif
+
 
 /** This performs the low-level USB I/O operations. Note that this
  *  needs to run in a thread with at least 80 MIPS worst case execution
