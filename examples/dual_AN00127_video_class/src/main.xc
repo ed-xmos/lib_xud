@@ -47,20 +47,30 @@ extern void Endpoint0_wrapper(chanend chan_ep0_out, chanend chan_ep0_in);
 
 extern void VideoEndpointsHandler_wrapper(chanend c_epint_in, chanend c_episo_in);
 
+/*
+    #define PORT_USB_CLK         on USB_TILE: XS1_PORT_1J
+    #define PORT_USB_TXD         on USB_TILE: XS1_PORT_8A
+    #define PORT_USB_RXD         on USB_TILE: XS1_PORT_8B
+    #define PORT_USB_TX_READYOUT on USB_TILE: XS1_PORT_1K
+    #define PORT_USB_TX_READYIN  on USB_TILE: XS1_PORT_1H
+    #define PORT_USB_RX_READY    on USB_TILE: XS1_PORT_1I
+    #define PORT_USB_FLAG0       on USB_TILE: XS1_PORT_1E
+    #define PORT_USB_FLAG1       on USB_TILE: XS1_PORT_1F
+*/
 
 XUD_resources_t resources =
 {
-    on tile[0]: XS1_PORT_1A,
-    on tile[0]: XS1_PORT_1B,
-    on tile[0]: XS1_PORT_1C,
-    on tile[0]: XS1_PORT_1D,
-    on tile[0]: XS1_PORT_1E,
-    on tile[0]: XS1_PORT_1F,
-    on tile[0]: XS1_PORT_1G,
-    on tile[0]: XS1_PORT_1H,
-    on tile[0]: XS1_PORT_1I,
-    on tile[0]: XS1_CLKBLK_1,
-    on tile[0]: XS1_CLKBLK_2,
+    on tile[0]: XS1_PORT_1E,            // flag0_port
+    on tile[0]: XS1_PORT_1F,            // flag1_port
+    on tile[0]: 0,                      // flag2_port
+    on tile[0]: XS1_PORT_1J,            // p_usb_clk
+    on tile[0]: XS1_PORT_8A,            // p_usb_txd
+    on tile[0]: XS1_PORT_8B,            // p_usb_rxd
+    on tile[0]: XS1_PORT_1K,            // tx_readyout
+    on tile[0]: XS1_PORT_1H,            // tx_readyin
+    on tile[0]: XS1_PORT_1I,            // rx_rdy
+    on tile[0]: XS1_CLKBLK_4,           // tx_usb_clk
+    on tile[0]: XS1_CLKBLK_5,           // rx_usb_clk
 };
 
 XUD_resources_t resources2 =
