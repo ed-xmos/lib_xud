@@ -39,14 +39,6 @@ unsigned g_curSpeed;
 unsigned g_desSpeed;
 unsigned g_txHandshakeTimeout;
 
-// /* XS2A has an additonal flag port. In Mission mode this is set to VALID_TOKEN */
-// #ifdef __XS2A__
-// in port flag2_port = PORT_USB_FLAG2;
-// #else
-// #define flag2_port null
-// #endif
-
-
 // We use a single array instrad of two here and append epAddr_Ready_setup on the end to save some instructions in the Setup
 // token handling code. i.e. what we really want is the following, but's less efficient.
 // unsigned epAddr_Ready[USB_MAN_NUM_EP]
@@ -547,6 +539,12 @@ void SetupEndpoints(chanend c_ep_out[], int noEpOut, chanend c_ep_in[], int noEp
     }
 }
 
+/* These are globals to allow assembler functions to access resource IDs */
+int rx_rdy = 0;
+int flag1_port = 0;
+int p_usb_rxd = 0;
+int p_usb_txd = 0;
+
 
 #pragma unsafe arrays
 int XUD_Main(chanend c_ep_out[], int noEpOut,
@@ -557,6 +555,14 @@ int XUD_Main(chanend c_ep_out[], int noEpOut,
                 XUD_resources_t &resources)
 {
     g_desSpeed = speed;
+
+    /* Ensure global resids accessed by ASM are initt'd */ 
+    unsafe{
+        rx_rdy = (int)resources.rx_rdy;
+        flag1_port = (int)resources.flag1_port;
+        p_usb_rxd = (int)resources.p_usb_rxd;
+        p_usb_txd = (int)resources.p_usb_txd;
+    }
 
     SetupEndpoints(c_ep_out, noEpOut, c_ep_in, noEpIn, epTypeTableOut, epTypeTableIn);
 
