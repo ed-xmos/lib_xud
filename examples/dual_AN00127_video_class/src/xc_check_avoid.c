@@ -1,10 +1,7 @@
 #include <xccompat.h>
 
 #include "xud.h"
-
-// Protos
-void VideoEndpointsHandler(chanend c_epint_in, chanend c_episo_in);
-void Endpoint0(chanend chan_ep0_out, chanend chan_ep0_in);
+#include "usb_video.h"
 
 
 int XUD_Main_wrapper(chanend c_epOut[], int noEpOut,
@@ -21,8 +18,8 @@ int XUD_Main_wrapper(chanend c_epOut[], int noEpOut,
                           desiredSpeed, pwrConfig, resources);
 }
 
-void Endpoint0_wrapper(chanend chan_ep0_out, chanend chan_ep0_in){
-    Endpoint0(chan_ep0_out, chan_ep0_in);
+void Endpoint0_wrapper(chanend chan_ep0_out, chanend chan_ep0_in, unsigned short PID){
+    Endpoint0(chan_ep0_out, chan_ep0_in, PID);
 }
 
 void VideoEndpointsHandler_wrapper(chanend c_epint_in, chanend c_episo_in){

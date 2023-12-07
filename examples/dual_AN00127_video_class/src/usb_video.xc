@@ -202,8 +202,11 @@ unsafe{
 }
 
 /* Endpoint 0 handles both std USB requests and Video class-specific requests */
-void Endpoint0(chanend chan_ep0_out, chanend chan_ep0_in)
+void Endpoint0(chanend chan_ep0_out, chanend chan_ep0_in, unsigned short PID)
 {
+    devDesc[10] = PID & 0xff;
+    devDesc[11] = PID >> 8;
+
     USB_SetupPacket_t sp;
 
     unsigned bmRequestType;

@@ -14,6 +14,6 @@
 void VideoEndpointsHandler(chanend c_epint_in, chanend c_episo_in);
 
 /* Endpoint 0 handles both std USB requests and Video class-specific requests */
-void Endpoint0(chanend chan_ep0_out, chanend chan_ep0_in);
+void Endpoint0(chanend chan_ep0_out, chanend chan_ep0_in, unsigned short PID);
 
 #endif /* USB_VIDEO_H_ */
