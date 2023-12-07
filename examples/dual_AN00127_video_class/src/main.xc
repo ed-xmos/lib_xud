@@ -62,7 +62,7 @@ XUD_resources_t resources =
 {
     on tile[0]: XS1_PORT_1E,            // flag0_port
     on tile[0]: XS1_PORT_1F,            // flag1_port
-    on tile[0]: 0,                      // flag2_port
+    null,                               // flag2_port
     on tile[0]: XS1_PORT_1J,            // p_usb_clk
     on tile[0]: XS1_PORT_8A,            // p_usb_txd
     on tile[0]: XS1_PORT_8B,            // p_usb_rxd
@@ -75,17 +75,17 @@ XUD_resources_t resources =
 
 XUD_resources_t resources2 =
 {
-    on tile[2]: XS1_PORT_1A,
-    on tile[2]: XS1_PORT_1B,
-    on tile[2]: XS1_PORT_1C,
-    on tile[2]: XS1_PORT_1D,
     on tile[2]: XS1_PORT_1E,
     on tile[2]: XS1_PORT_1F,
-    on tile[2]: XS1_PORT_1G,
+    null,
+    on tile[2]: XS1_PORT_1J,
+    on tile[2]: XS1_PORT_8A,
+    on tile[2]: XS1_PORT_8B,
+    on tile[2]: XS1_PORT_1K,
     on tile[2]: XS1_PORT_1H,
     on tile[2]: XS1_PORT_1I,
-    on tile[2]: XS1_CLKBLK_1,
-    on tile[2]: XS1_CLKBLK_2,
+    on tile[2]: XS1_CLKBLK_4,
+    on tile[2]: XS1_CLKBLK_5,
 };
 
 int main() {

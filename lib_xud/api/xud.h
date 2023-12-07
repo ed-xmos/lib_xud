@@ -124,7 +124,7 @@ typedef struct XUD_resources_t
 {
     port flag0_port;
     port flag1_port;
-    port flag2_port;
+    NULLABLE_RESOURCE(port, flag2_port);
     in_buffered_port_32_t p_usb_clk;
     out_buffered_port_32_t p_usb_txd;
     in_buffered_port_32_t p_usb_rxd ;
