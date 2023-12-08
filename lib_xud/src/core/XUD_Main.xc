@@ -544,6 +544,7 @@ int rx_rdy = 0;
 int flag1_port = 0;
 int p_usb_rxd = 0;
 int p_usb_txd = 0;
+XUD_resources_t * unsafe resource_ptr = null;
 
 
 #pragma unsafe arrays
@@ -562,6 +563,7 @@ int XUD_Main(chanend c_ep_out[], int noEpOut,
         flag1_port = (int)resources.flag1_port;
         p_usb_rxd = (int)resources.p_usb_rxd;
         p_usb_txd = (int)resources.p_usb_txd;
+        resource_ptr = (XUD_resources_t * unsafe)&resources;
     }
 
     SetupEndpoints(c_ep_out, noEpOut, c_ep_in, noEpIn, epTypeTableOut, epTypeTableIn);

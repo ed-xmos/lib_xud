@@ -29,68 +29,72 @@ unsigned int test_packet[] =
     0xceb67efd
 };
 
+extern XUD_resources_t * unsafe resource_ptr;
+
 // Runs in XUD thread with interrupt on entering testmode.
 int XUD_UsbTestModeHandler(unsigned cmd)
 {
-//     switch(cmd)
-//     {
-//         case USB_WINDEX_TEST_J:
+    unsafe{
+        switch(cmd)
+        {
+            case USB_WINDEX_TEST_J:
 
-//             XUD_HAL_EnterMode_PeripheralTestJTestK();
+                XUD_HAL_EnterMode_PeripheralTestJTestK();
 
-//             while(1)
-//             {
-//                 p_usb_txd <: 0xffffffff;
-//             }
-//             break;
+                while(1)
+                {
+                    resource_ptr->p_usb_txd <: 0xffffffff;
+                }
+                break;
 
-//         case USB_WINDEX_TEST_K:
+            case USB_WINDEX_TEST_K:
 
-//             XUD_HAL_EnterMode_PeripheralTestJTestK();
+                XUD_HAL_EnterMode_PeripheralTestJTestK();
 
-//             while(1)
-//             {
-//                 p_usb_txd <: 0;
-//             }
-//             break;
+                while(1)
+                {
+                    resource_ptr->p_usb_txd <: 0;
+                }
+                break;
 
-//         case USB_WINDEX_TEST_SE0_NAK:
+            case USB_WINDEX_TEST_SE0_NAK:
 
-//             XUD_HAL_EnterMode_PeripheralHighSpeed();
+                XUD_HAL_EnterMode_PeripheralHighSpeed();
 
-//             /* Drop into asm to deal with this mode */
-//             XUD_UsbTestSE0();
-//             break;
+                /* Drop into asm to deal with this mode */
+                XUD_UsbTestSE0();
+                break;
 
-//         case USB_WINDEX_TEST_PACKET:
-//             {
-//                 XUD_HAL_EnterMode_PeripheralHighSpeed();
+            case USB_WINDEX_TEST_PACKET:
+                {
+                    XUD_HAL_EnterMode_PeripheralHighSpeed();
 
-//                 // Repetitively transmit specific test packet forever.
-//                 // Timings must still meet minimum interpacket gap
-//                 // Have to relate KJ pairings to data.
-//                 unsigned i;
-//                 timer test_packet_timer;
+                    // Repetitively transmit specific test packet forever.
+                    // Timings must still meet minimum interpacket gap
+                    // Have to relate KJ pairings to data.
+                    unsigned i;
+                    timer test_packet_timer;
 
-// #pragma unsafe arrays
-//                 while (1)
-//                 {
-// #pragma loop unroll
-//                     for (i=0; i < sizeof(test_packet)/sizeof(test_packet[0]); i++)
-//                     {
-//                         p_usb_txd <: test_packet[i];
-//                     };
-//                     sync(p_usb_txd);
-//                     test_packet_timer :> i;
-//                     test_packet_timer when timerafter (i + T_INTER_TEST_PACKET) :> int _;
-//                 }
-//             }
-//             break;
+    #pragma unsafe arrays
+                    while (1)
+                    {
+    #pragma loop unroll
+                        for (i=0; i < sizeof(test_packet)/sizeof(test_packet[0]); i++)
+                        {
+                            resource_ptr->p_usb_txd <: test_packet[i];
+                        };
+                        sync(resource_ptr->p_usb_txd);
+                        test_packet_timer :> i;
+                        test_packet_timer when timerafter (i + T_INTER_TEST_PACKET) :> int _;
+                    }
+                }
+                break;
 
-//         default:
-//             break;
-//     }
-//     while(1);
-//     return -1;  // Unreachable
-}
+            default:
+                break;
+        }
+        while(1);
+        return -1;  // Unreachable
+    }
+}    
 #endif
