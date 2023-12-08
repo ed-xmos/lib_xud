@@ -11,7 +11,7 @@
 #define DEBUG 0
 
 /* Function to handle all endpoints of the Video class excluding control endpoint0 */
-void VideoEndpointsHandler(chanend c_epint_in, chanend c_episo_in);
+void VideoEndpointsHandler(chanend c_epint_in, chanend c_episo_in, unsigned instance);
 
 /* Endpoint 0 handles both std USB requests and Video class-specific requests */
 void Endpoint0(chanend chan_ep0_out, chanend chan_ep0_in, unsigned short PID);

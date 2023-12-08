@@ -45,7 +45,7 @@ int XUD_Main_wrapper(chanend c_epOut[], int noEpOut,
 
 extern void Endpoint0_wrapper(chanend chan_ep0_out, chanend chan_ep0_in, unsigned short PID);
 
-extern void VideoEndpointsHandler_wrapper(chanend c_epint_in, chanend c_episo_in);
+extern void VideoEndpointsHandler_wrapper(chanend c_epint_in, chanend c_episo_in, unsigned instance);
 
 /*
     #define PORT_USB_CLK         on USB_TILE: XS1_PORT_1J
@@ -103,7 +103,7 @@ int main() {
 
         on USB_TILE: Endpoint0(c_ep_out[0], c_ep_in[0], PRODUCT_ID);
 
-        on USB_TILE: VideoEndpointsHandler(c_ep_in[1], c_ep_in[2]);
+        on USB_TILE: VideoEndpointsHandler(c_ep_in[1], c_ep_in[2], 0);
 
 #undef USB_TILE
 #define USB_TILE tile[2]
@@ -114,7 +114,7 @@ int main() {
 
         on USB_TILE: Endpoint0_wrapper(c_ep_out2[0], c_ep_in2[0], PRODUCT_ID + 1);
 
-        on USB_TILE: VideoEndpointsHandler_wrapper(c_ep_in2[1], c_ep_in2[2]);
+        on USB_TILE: VideoEndpointsHandler_wrapper(c_ep_in2[1], c_ep_in2[2], 1);
 
 
     }

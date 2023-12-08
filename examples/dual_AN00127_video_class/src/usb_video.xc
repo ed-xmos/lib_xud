@@ -290,7 +290,7 @@ void Endpoint0(chanend chan_ep0_out, chanend chan_ep0_in, unsigned short PID)
 unsigned int gVideoBuffer[3][PAYLOAD_SIZE / 4];
 
 /* Function to handle all endpoints of the Video class excluding control endpoint0 */
-void VideoEndpointsHandler(chanend c_epint_in, chanend c_episo_in)
+void VideoEndpointsHandler(chanend c_epint_in, chanend c_episo_in, unsigned instance)
 {
     XUD_Result_t result;
     int frame = 0x0C;
@@ -314,7 +314,7 @@ void VideoEndpointsHandler(chanend c_epint_in, chanend c_episo_in)
     /* Fill video buffers with different color data */
     for(int i = 0; i < (PAYLOAD_SIZE/4); i++) {
         /* Set RED color */
-        gVideoBuffer[0][i] = 0x7010D010;
+        gVideoBuffer[0][i] = 0x7010D010 * instance;
         /* Set GREEN color */
         gVideoBuffer[2][i] = 0x00000000;
         /* Set BLUE color */
