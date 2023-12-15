@@ -42,7 +42,19 @@ extern void Endpoint0_wrapper(chanend chan_ep0_out, chanend chan_ep0_in);
 
 extern void VideoEndpointsHandler_wrapper(chanend c_epint_in, chanend c_episo_in);
 
-// Tile[0] resources defined by XUD and XN file
+extern int XUD_Main_wrapper2(chanend c_epOut[], int noEpOut,
+                chanend c_epIn[], int noEpIn,
+                NULLABLE_RESOURCE(chanend, c_sof),
+                XUD_EpType epTypeTableOut[], XUD_EpType epTypeTableIn[],
+                XUD_BusSpeed_t desiredSpeed,
+                XUD_PwrConfig pwrConfig);
+
+extern void Endpoint0_wrapper2(chanend chan_ep0_out, chanend chan_ep0_in);
+
+extern void VideoEndpointsHandler_wrapper2(chanend c_epint_in, chanend c_episo_in);
+
+#if APP_TILE == 0
+// tile[0] resources defined by XUD and XN file
 in port flag0_port = PORT_USB_FLAG0; /* For XS3: Mission: RXE, XS2 is configurable and set to RXE in mission mode */
 in port flag1_port = PORT_USB_FLAG1; /* For XS3: Mission: RXA, XS2 is configuratble and set to RXA in mission mode*/
 in buffered port:32 p_usb_clk  = PORT_USB_CLK;
@@ -51,22 +63,23 @@ in  buffered port:32 p_usb_rxd = PORT_USB_RXD;
 out port tx_readyout           = PORT_USB_TX_READYOUT;
 in port tx_readyin             = PORT_USB_TX_READYIN;
 in port rx_rdy                 = PORT_USB_RX_READY;
-on USB_TILE: clock tx_usb_clk  = XS1_CLKBLK_4;
-on USB_TILE: clock rx_usb_clk  = XS1_CLKBLK_5;
+on tile[0]: clock tx_usb_clk  = XS1_CLKBLK_4;
+on tile[0]: clock rx_usb_clk  = XS1_CLKBLK_5;
+#endif
 
+#if APP_TILE == 2
 // Need to declare resources on tile[2] so we have XC constructors for them
-on tile[2]: in port flag0_port2 = XS1_PORT_1E; /* For XS3: Mission: RXE, XS2 is configurable and set to RXE in mission mode */
-on tile[2]: in port flag1_port2 = XS1_PORT_1F; /* For XS3: Mission: RXA, XS2 is configuratble and set to RXA in mission mode*/
-on tile[2]: in buffered port:32 p_usb_clk2  = XS1_PORT_1J;
-on tile[2]: out buffered port:32 p_usb_txd2 = XS1_PORT_8A;
-on tile[2]: in  buffered port:32 p_usb_rxd2 = XS1_PORT_8B;
-on tile[2]: out port tx_readyout2           = XS1_PORT_1K;
-on tile[2]: in port tx_readyin2             = XS1_PORT_1H;
-on tile[2]: in port rx_rdy2                 = XS1_PORT_1I;
-on tile[2]: clock tx_usb_clk2  = XS1_CLKBLK_4;
-on tile[2]: clock rx_usb_clk2  = XS1_CLKBLK_5;
-
-extern void test_print(void);
+on tile[2]: in port flag0_port = XS1_PORT_1E; /* For XS3: Mission: RXE, XS2 is configurable and set to RXE in mission mode */
+on tile[2]: in port flag1_port = XS1_PORT_1F; /* For XS3: Mission: RXA, XS2 is configuratble and set to RXA in mission mode*/
+on tile[2]: in buffered port:32 p_usb_clk  = XS1_PORT_1J;
+on tile[2]: out buffered port:32 p_usb_txd = XS1_PORT_8A;
+on tile[2]: in  buffered port:32 p_usb_rxd = XS1_PORT_8B;
+on tile[2]: out port tx_readyout           = XS1_PORT_1K;
+on tile[2]: in port tx_readyin             = XS1_PORT_1H;
+on tile[2]: in port rx_rdy                 = XS1_PORT_1I;
+on tile[2]: clock tx_usb_clk  = XS1_CLKBLK_4;
+on tile[2]: clock rx_usb_clk  = XS1_CLKBLK_5;
+#endif
 
 int main() {
 
@@ -76,28 +89,21 @@ int main() {
     /* 'Par' statement to run the following tasks in parallel */
     par
     {
-        on USB_TILE: 
-        {
-            test_print();
-            XUD_Main(c_ep_out, EP_COUNT_OUT, c_ep_in, EP_COUNT_IN,
-                null, epTypeTableOut, epTypeTableIn,
-                    XUD_SPEED_HS, XUD_PWR_BUS);
-        }
+        on tile[0]: XUD_Main_wrapper(c_ep_out, EP_COUNT_OUT, c_ep_in, EP_COUNT_IN,
+                        null, epTypeTableOut, epTypeTableIn,
+                        XUD_SPEED_HS, XUD_PWR_BUS);
 
-        on USB_TILE: Endpoint0(c_ep_out[0], c_ep_in[0]);
+        on tile[0]: Endpoint0_wrapper(c_ep_out[0], c_ep_in[0]);
 
-        on USB_TILE: VideoEndpointsHandler(c_ep_in[1], c_ep_in[2]);
+        on tile[0]: VideoEndpointsHandler_wrapper(c_ep_in[1], c_ep_in[2]);
 
-#undef USB_TILE
-#define USB_TILE tile[2]
-
-        on USB_TILE: XUD_Main_wrapper(c_ep_out2, EP_COUNT_OUT, c_ep_in2, EP_COUNT_IN,
+        on tile[2]: XUD_Main_wrapper2(c_ep_out2, EP_COUNT_OUT, c_ep_in2, EP_COUNT_IN,
                       null, epTypeTableOut2, epTypeTableIn2,
                       XUD_SPEED_HS, XUD_PWR_BUS);
 
-        on USB_TILE: Endpoint0_wrapper(c_ep_out2[0], c_ep_in2[0]);
+        on tile[2]: Endpoint0_wrapper2(c_ep_out2[0], c_ep_in2[0]);
 
-        on USB_TILE: VideoEndpointsHandler_wrapper(c_ep_in2[1], c_ep_in2[2]);
+        on tile[2]: VideoEndpointsHandler_wrapper2(c_ep_in2[1], c_ep_in2[2]);
 
 
     }

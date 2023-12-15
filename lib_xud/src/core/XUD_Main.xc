@@ -519,10 +519,13 @@ void SetupEndpoints(chanend c_ep_out[], int noEpOut, chanend c_ep_in[], int noEp
         }
     }
 
+    printintln(noEpIn);
+
     for(int i = 0; i< noEpIn; i++)
     {
         if(epTypeTableIn[i] != XUD_EPTYPE_DIS)
         {
+
             int x;
             epChans0[i+USB_MAX_NUM_EP_OUT] = XUD_Sup_GetResourceId(c_ep_in[i]);
 
@@ -546,7 +549,11 @@ void SetupEndpoints(chanend c_ep_out[], int noEpOut, chanend c_ep_in[], int noEp
             ep_info[USB_MAX_NUM_EP_OUT+i].halted = 0;    // Mark EP as not halted
 
             asm("ldaw %0, %1[%2]":"=r"(x):"r"(ep_info),"r"((USB_MAX_NUM_EP_OUT+i)*sizeof(XUD_ep_info)/sizeof(unsigned)));
+            printintln(i);
+
             outuint(c_ep_in[i], x);
+            printintln(i);
+
         }
     }
 

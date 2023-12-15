@@ -25,14 +25,6 @@ int XUD_Main(   chanend c_epOut[], int noEpOut,
 void VideoEndpointsHandler(chanend c_epint_in, chanend c_episo_in);
 void Endpoint0(chanend chan_ep0_out, chanend chan_ep0_in);
 
-extern port p_usb_clk2;
-extern port p_usb_clk;
-
-void test_print(void){
-    printf("tile[0] p_usb_clk: %x\n", p_usb_clk);
-    printf("tile[0] p_usb_clk2: %x\n", p_usb_clk2);
-}
-
 int XUD_Main_wrapper(chanend c_epOut[], int noEpOut,
                 chanend c_epIn[], int noEpIn,
                 NULLABLE_RESOURCE(chanend, c_sof),
@@ -40,18 +32,50 @@ int XUD_Main_wrapper(chanend c_epOut[], int noEpOut,
                 XUD_BusSpeed_t desiredSpeed,
                 XUD_PwrConfig pwrConfig){
 
-    printf("tile[2] p_usb_clk: %x\n", p_usb_clk);
-    printf("tile[2] p_usb_clk2: %x\n", p_usb_clk2);
-
-    return XUD_Main(c_epOut, noEpOut, c_epIn, noEpOut,
+#if APP_TILE == 0 
+    return XUD_Main(c_epOut, noEpOut, c_epIn, noEpIn,
                           c_sof, epTypeTableOut, epTypeTableIn,
                           desiredSpeed, pwrConfig);
+#endif
+    return 0;
 }
 
 void Endpoint0_wrapper(chanend chan_ep0_out, chanend chan_ep0_in){
+#if APP_TILE == 0 
     Endpoint0(chan_ep0_out, chan_ep0_in);
+#endif
 }
 
 void VideoEndpointsHandler_wrapper(chanend c_epint_in, chanend c_episo_in){
+#if APP_TILE == 0 
     VideoEndpointsHandler(c_epint_in, c_episo_in);
+#endif
+}
+
+
+int XUD_Main_wrapper2(chanend c_epOut[], int noEpOut,
+                chanend c_epIn[], int noEpIn,
+                NULLABLE_RESOURCE(chanend, c_sof),
+                XUD_EpType epTypeTableOut[], XUD_EpType epTypeTableIn[],
+                XUD_BusSpeed_t desiredSpeed,
+                XUD_PwrConfig pwrConfig){
+
+#if APP_TILE == 2 
+    return XUD_Main(c_epOut, noEpOut, c_epIn, noEpIn,
+                          c_sof, epTypeTableOut, epTypeTableIn,
+                          desiredSpeed, pwrConfig);
+#endif
+    return 0;
+}
+
+void Endpoint0_wrapper2(chanend chan_ep0_out, chanend chan_ep0_in){
+#if APP_TILE == 2 
+    Endpoint0(chan_ep0_out, chan_ep0_in);
+#endif
+}
+
+void VideoEndpointsHandler_wrapper2(chanend c_epint_in, chanend c_episo_in){
+#if APP_TILE == 2 
+    VideoEndpointsHandler(c_epint_in, c_episo_in);
+#endif
 }
